@@ -73,10 +73,41 @@ app.post("/topic", (req, res) => {
 });
 // cheak id
 app.post("/cheack_id", (req, res) => {
-  const dataToSend = req.body.number;
+  const dataToSend = req.body;
+  const found = database.some(
+    (database) => database.ID === dataToSend.data.number
+  );
 
-  const found = database.some((database) => database.ID === dataToSend);
-  res.send(found);
+  if (found) {
+    //  console.log("Data sent successfully:", dataToSend, response.data);
+    // decremnt catalog
+    database.forEach((Element) => {
+      if (Element.ID === dataToSend.data.number) {
+        Element.quantity = Element.quantity - 1;
+
+        // res.json({ msg: "book update ", Element });
+        // console.log(database);
+      }
+    });
+    //update
+
+    database.forEach((Element) => {
+      if (Element.ID === parseInt(req.params.id)) {
+        Element.price = dataToSend.updmemper.price
+          ? dataToSend.updmemper.price
+          : Element.price;
+        Element.quantity = dataToSend.updmemper.quantity
+          ? dataToSend.updmemper.quantity
+          : Element.quantity;
+        res.send({ msg: "book update ", Element });
+        console.log(database);
+
+        fs.writeFileSync("../database.json", JSON.stringify(database));
+      }
+    });
+  } else {
+    res.send("not found");
+  }
 });
 
 // Start the server
