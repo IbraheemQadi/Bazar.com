@@ -8,11 +8,11 @@ let database;
 let jsonData;
 
 // Assuming your JSON file is named 'data.json'
-const filePath = "../database.json";
+const filePath = "database.json";
 
 // Read the file asynchronously
 const fs = require("fs");
-fs.readFile("../database.json", "utf8", (err, data) => {
+fs.readFile("database.json", "utf8", (err, data) => {
   if (err) {
     console.error("Error reading file:", err);
     return;
