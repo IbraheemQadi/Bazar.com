@@ -92,7 +92,7 @@ app.post("/cheack_id", (req, res) => {
     //update
 
     database.forEach((Element) => {
-      if (Element.ID === parseInt(req.params.id)) {
+      if (Element.ID === dataToSend.data.number) {
         Element.price = dataToSend.updmemper.price
           ? dataToSend.updmemper.price
           : Element.price;
@@ -102,7 +102,7 @@ app.post("/cheack_id", (req, res) => {
         res.send({ msg: "book update ", Element });
         console.log(database);
 
-        fs.writeFileSync("../database.json", JSON.stringify(database));
+        fs.writeFileSync("database.json", JSON.stringify(database));
       }
     });
   } else {
