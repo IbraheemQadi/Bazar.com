@@ -2,6 +2,10 @@ const express = require("express");
 const { getDatabase, updateDatabase } = require("./db/utils");
 const app = express();
 
+app.get("/", (req, res) => {
+  res.send("Catalog server is running");
+});
+
 app.get("/search/:topic", (req, res) => {
   const topic = req.params.topic;
 
