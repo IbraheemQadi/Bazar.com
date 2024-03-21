@@ -1,117 +1,57 @@
-// Import necessary modules
 const express = require("express");
-const bodyParser = require("body-parser");
-// Create an Express application
+const { getDatabase, updateDatabase } = require("./db/utils");
 const app = express();
-app.use(bodyParser.json());
-let database;
-let jsonData;
 
-// Assuming your JSON file is named 'data.json'
-const filePath = "database.json";
+app.get("/search/:topic", (req, res) => {
+  const topic = req.params.topic;
 
-// Read the file asynchronously
-const fs = require("fs");
-fs.readFile("database.json", "utf8", (err, data) => {
-  if (err) {
-    console.error("Error reading file:", err);
-    return;
-  }
-
-  try {
-    // Parse the JSON data
-    jsonData = JSON.parse(data);
-    database = Object.values(jsonData);
-
-    // Now 'jsonData' contains the contents of your JSON file
-    //console.log(jsonData);
-  } catch (error) {
-    console.error("Error parsing JSON data:", error);
-  }
+  getDatabase().then((database) => {
+    const books = database?.filter((book) => book.topic === topic);
+    if (books.length > 0) {
+      res.send(books);
+    } else {
+      res.status(404).send({ message: "No books found" });
+    }
+  });
 });
-// Define a route handler for the POST request to /receive
-app.post("/id", (req, res) => {
-  const dataToSend = req.body.number;
 
-  const found = database.some((database) => database.ID === dataToSend);
+app.get("/info/:id", (req, res) => {
+  const bookId = parseInt(req.params.id);
 
-  console.log(found);
-  console.log(dataToSend);
-  if (found) {
-    const filteredData = database
-      .filter((item) => {
-        return item.ID === dataToSend;
-      })
-      .map((item) => ({
-        title: item.title,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-    //const a = json.parse(filteredData);
-    res.send(filteredData);
-  } else {
-    res.send("No ID same u send");
-  }
+  getDatabase().then((database) => {
+    const book = database?.find((book) => book.ID === bookId);
+    if (book) {
+      res.send(book);
+    } else {
+      res.status(404).send({ message: "Book not found" });
+    }
+  });
 });
-/// for topic
-app.post("/topic", (req, res) => {
-  const dataToSend = req.body.topic;
-  if (database.some((item) => item.topic.includes(dataToSend))) {
-    const filteredData = database
-      .filter((item) => item.topic.includes(dataToSend))
-      .map((item) => ({
-        ID: item.ID,
-        title: item.title,
-        // Add other properties as needed
-      }));
-    console.log("filter data =", filteredData);
 
-    res.send(filteredData);
-  } else {
-    res.send("there is No topic same u send");
-  }
-});
-// cheak id
-app.post("/cheack_id", (req, res) => {
-  const dataToSend = req.body;
-  const found = database.some(
-    (database) => database.ID === dataToSend.data.number
-  );
+app.post("/purchase/:id", (req, res) => {
+  const bookId = parseInt(req.params.id);
 
-  if (found) {
-    //  console.log("Data sent successfully:", dataToSend, response.data);
-    // decremnt catalog
-    database.forEach((Element) => {
-      if (Element.ID === dataToSend.data.number) {
-        Element.quantity = Element.quantity - 1;
-
-        // res.json({ msg: "book update ", Element });
-        // console.log(database);
+  getDatabase().then((database) => {
+    const book = database?.find((book) => book.ID === bookId);
+    if (book) {
+      if (book.quantity > 0) {
+        book.quantity--;
+        updateDatabase(database)
+          .then(() => res.send({ message: "Book purchased successfully" }))
+          .catch(() =>
+            res.status(500).send({ message: "Internal server error:" })
+          );
+      } else {
+        res.status(400).send({ message: "Book out of stock" });
       }
-    });
-    //update
-
-    database.forEach((Element) => {
-      if (Element.ID === dataToSend.data.number) {
-        Element.price = dataToSend.updmemper.price
-          ? dataToSend.updmemper.price
-          : Element.price;
-        Element.quantity = dataToSend.updmemper.quantity
-          ? dataToSend.updmemper.quantity
-          : Element.quantity;
-        res.send({ msg: "book update ", Element });
-        console.log(database);
-
-        fs.writeFileSync("database.json", JSON.stringify(database));
-      }
-    });
-  } else {
-    res.send("not found");
-  }
+    } else {
+      res.status(404).send({ message: "Book not found" });
+    }
+  });
 });
 
 // Start the server
-const PORT = 3005;
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
