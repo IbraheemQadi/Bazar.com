@@ -1,49 +1,46 @@
-const axios = require("axios");
 const express = require("express");
-const fs = require("fs");
-
+const axios = require("axios");
 const app = express();
 const PORT = 3000;
 
-app.get("/CATALOG_WEBSERVICE_IP/info/:id", (req, res) => {
-  const dataToSend = parseInt(req.params.id);
-  const serverUrl = "http://localhost:3005/id";
+const CATALOG_SERVER_URL = "http://localhost:3001";
+const ORDER_SERVER_URL = "http://localhost:3002";
+
+app.get("/", (req, res) => {
+  res.send("Gateway server is running");
+});
+
+app.get("/search/:topic", (req, res) => {
+  const topic = req.params.topic;
+  const requestURL = `${CATALOG_SERVER_URL}/search/${encodeURIComponent(
+    topic
+  )}`;
 
   axios
-    .post(serverUrl, {
-      number: dataToSend,
-    })
-    .then((response) => {
-      console.log("Data sent successfully:", dataToSend);
-      // Send the response here inside the Axios .then() block
-      res.json(response.data);
-    })
-    .catch((error) => {
-      console.error("Error sending data:", error);
-      // Send an error response if there's an issue with Axios request
-      res.status(500).json({ error: "Error sending data" });
-    });
+    .get(requestURL)
+    .then((response) => res.json(response.data))
+    .catch((error) => res.status(500).json({ error: error.message }));
 });
-/// serch to topic
-app.get("/CATALOG_WEBSERVICE_IP/search/:topic", (req, res) => {
-  const dataToSend = req.params.topic;
-  const serverUrl = "http://localhost:3005/topic";
+
+app.get("/info/:id", (req, res) => {
+  const bookId = parseInt(req.params.id);
+  const requestURL = `${CATALOG_SERVER_URL}/info/${bookId}`;
+
   axios
-    .post(serverUrl, {
-      topic: dataToSend,
-    })
-    .then((response) => {
-      console.log("Data sent successfully:", dataToSend);
-      // Send the response here inside the Axios .then() block
-      res.json(response.data);
-    })
-    .catch((error) => {
-      console.error("Error sending data:", error);
-      // Send an error response if there's an issue with Axios request
-      res.status(500).json({ error: "Error sending data" });
-    });
+    .get(requestURL)
+    .then((response) => res.json(response.data))
+    .catch((error) => res.status(500).json({ error: error.message }));
 });
-///// for update
+
+app.post("/purchase/:id", (req, res) => {
+  const bookId = parseInt(req.params.id);
+  const requestURL = `${ORDER_SERVER_URL}/purchase/${bookId}`;
+
+  axios
+    .post(requestURL)
+    .then((response) => res.json(response.data))
+    .catch((error) => res.status(500).json({ error: error.message }));
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
