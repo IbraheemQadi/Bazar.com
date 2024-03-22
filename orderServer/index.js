@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 
 const PORT = 3002;
-const CATALOG_SERVER_URL = "http://localhost:3001";
+const CATALOG_SERVER_URL = "http://catalog-server:3001";
 
 app.get("/", (req, res) => {
   res.send("Order server is running");

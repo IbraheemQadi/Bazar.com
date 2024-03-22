@@ -3,8 +3,8 @@ const axios = require("axios");
 const app = express();
 const PORT = 3000;
 
-const CATALOG_SERVER_URL = "http://localhost:3001";
-const ORDER_SERVER_URL = "http://localhost:3002";
+const CATALOG_SERVER_URL = "http://catalog-server:3001";
+const ORDER_SERVER_URL = "http://order-server:3002";
 
 app.get("/", (req, res) => {
   res.send("Gateway server is running");
