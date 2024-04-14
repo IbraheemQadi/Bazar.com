@@ -19,7 +19,9 @@ app.get("/search/:topic", (req, res) => {
   axios
     .get(requestURL)
     .then((response) => res.json(response.data))
-    .catch((error) => res.status(500).json({ error: error.message }));
+    .catch((error) =>
+      res.status(error.response.status).json(error.response.data)
+    );
 });
 
 app.get("/info/:id", (req, res) => {
@@ -29,7 +31,9 @@ app.get("/info/:id", (req, res) => {
   axios
     .get(requestURL)
     .then((response) => res.json(response.data))
-    .catch((error) => res.status(500).json({ error: error.message }));
+    .catch((error) =>
+      res.status(error.response.status).json(error.response.data)
+    );
 });
 
 app.post("/purchase/:id", (req, res) => {
@@ -39,7 +43,9 @@ app.post("/purchase/:id", (req, res) => {
   axios
     .post(requestURL)
     .then((response) => res.json(response.data))
-    .catch((error) => res.status(500).json({ error: error.message }));
+    .catch((error) =>
+      res.status(error.response.status).json(error.response.data)
+    );
 });
 
 app.listen(PORT, () => {
